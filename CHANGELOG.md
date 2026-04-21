@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/mikocoral05/biometric-vault/compare/v1.0.0...v1.0.1) (2026-04-21)
+
+
+### Bug Fixes
+
+* sync semantic-release version with NPM ([993c00c](https://github.com/mikocoral05/biometric-vault/commit/993c00ca7fe3d1dfc228ad7e56ff2d9bf35a0bb4))
+
 # 1.0.0 (2026-04-21)
 
 
