@@ -2,13 +2,13 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "moduleResolution": "node",
+    // Prevent type pollution from @types/node brought in by vitest
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "outDir": "dist"
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src"]
 }

@@ -1,5 +1,5 @@
-import { bufferToBase64url, base64urlToBuffer, randomBytes } from "./utils.js";
-import { deriveKeyFromPrf, encryptData, decryptData } from "./crypto.js";
+import { bufferToBase64url, base64urlToBuffer, randomBytes } from './utils.js';
+import { deriveKeyFromPrf, encryptData, decryptData } from './crypto.js';
 
 interface VaultConfig {
   credentialId: string;
@@ -27,21 +27,26 @@ export class BiometricVault {
       const config: VaultConfig = JSON.parse(configStr);
       const prfSalt = base64urlToBuffer(config.salt);
       const allowCredentials: PublicKeyCredentialDescriptor[] = [
-        { id: base64urlToBuffer(config.credentialId), type: "public-key" },
+        {
+          id: base64urlToBuffer(config.credentialId) as unknown as BufferSource,
+          type: 'public-key',
+        },
       ];
 
       if (config.duressCredentialId) {
         allowCredentials.push({
-          id: base64urlToBuffer(config.duressCredentialId),
-          type: "public-key",
+          id: base64urlToBuffer(
+            config.duressCredentialId,
+          ) as unknown as BufferSource,
+          type: 'public-key',
         });
       }
 
       const assertion = (await navigator.credentials.get({
         publicKey: {
-          challenge: randomBytes(32),
+          challenge: randomBytes(32) as unknown as BufferSource,
           allowCredentials,
-          userVerification: "required",
+          userVerification: 'required',
           extensions: {
             prf: {
               eval: {
@@ -53,7 +58,7 @@ export class BiometricVault {
       })) as PublicKeyCredential;
 
       if (!assertion) {
-        throw new Error("Authentication failed");
+        throw new Error('Authentication failed');
       }
 
       // Check for duress mode
@@ -62,7 +67,7 @@ export class BiometricVault {
         assertion.id === config.duressCredentialId
       ) {
         BiometricVault.wipeVault(vaultName);
-        throw new Error("Duress mode activated: Vault wiped.");
+        throw new Error('Duress mode activated: Vault wiped.');
       }
 
       // Get PRF result
@@ -72,7 +77,7 @@ export class BiometricVault {
 
       if (!prfResult) {
         throw new Error(
-          "Your authenticator does not support the required PRF extension for hardware-bound encryption.",
+          'Your authenticator does not support the required PRF extension for hardware-bound encryption.',
         );
       }
 
@@ -85,24 +90,24 @@ export class BiometricVault {
 
       const credential = (await navigator.credentials.create({
         publicKey: {
-          challenge: randomBytes(32),
+          challenge: randomBytes(32) as unknown as BufferSource,
           rp: {
-            name: "Biometric Vault",
+            name: 'Biometric Vault',
             id: window.location.hostname,
           },
           user: {
-            id: userId,
+            id: userId as unknown as BufferSource,
             name: `${vaultName} User`,
             displayName: `Owner of ${vaultName}`,
           },
           pubKeyCredParams: [
-            { type: "public-key", alg: -7 },
-            { type: "public-key", alg: -257 },
+            { type: 'public-key', alg: -7 },
+            { type: 'public-key', alg: -257 },
           ],
           authenticatorSelection: {
-            authenticatorAttachment: "platform",
-            userVerification: "required",
-            residentKey: "required",
+            authenticatorAttachment: 'platform',
+            userVerification: 'required',
+            residentKey: 'required',
           },
           extensions: {
             prf: {
@@ -115,7 +120,7 @@ export class BiometricVault {
       })) as PublicKeyCredential;
 
       if (!credential) {
-        throw new Error("Registration failed");
+        throw new Error('Registration failed');
       }
 
       const clientExtensionResults =
@@ -126,15 +131,15 @@ export class BiometricVault {
       if (!prfResult) {
         if (!clientExtensionResults.prf?.enabled) {
           throw new Error(
-            "Your authenticator does not support the required PRF extension for hardware-bound encryption.",
+            'Your authenticator does not support the required PRF extension for hardware-bound encryption.',
           );
         }
         // Fallback: get assertion to fetch PRF
         const assertion = (await navigator.credentials.get({
           publicKey: {
-            challenge: randomBytes(32),
-            allowCredentials: [{ id: credential.rawId, type: "public-key" }],
-            userVerification: "required",
+            challenge: randomBytes(32) as unknown as BufferSource,
+            allowCredentials: [{ id: credential.rawId, type: 'public-key' }],
+            userVerification: 'required',
             extensions: {
               prf: {
                 eval: {
@@ -148,7 +153,7 @@ export class BiometricVault {
         const assertExt = assertion.getClientExtensionResults() as any;
         prfResult = assertExt.prf?.results?.first;
         if (!prfResult)
-          throw new Error("Failed to retrieve PRF from authenticator");
+          throw new Error('Failed to retrieve PRF from authenticator');
       }
 
       const config: VaultConfig = {
@@ -171,36 +176,36 @@ export class BiometricVault {
     const configStr = localStorage.getItem(
       `biometric_vault_config_${vaultName}`,
     );
-    if (!configStr) throw new Error("Vault does not exist");
+    if (!configStr) throw new Error('Vault does not exist');
     const config: VaultConfig = JSON.parse(configStr);
 
     const userId = randomBytes(16);
     // Create another credential for duress
     const credential = (await navigator.credentials.create({
       publicKey: {
-        challenge: randomBytes(32),
+        challenge: randomBytes(32) as unknown as BufferSource,
         rp: {
-          name: "Biometric Vault (Duress)",
+          name: 'Biometric Vault (Duress)',
           id: window.location.hostname,
         },
         user: {
-          id: userId,
+          id: userId as unknown as BufferSource,
           name: `${vaultName} Duress User`,
           displayName: `Duress for ${vaultName}`,
         },
         pubKeyCredParams: [
-          { type: "public-key", alg: -7 },
-          { type: "public-key", alg: -257 },
+          { type: 'public-key', alg: -7 },
+          { type: 'public-key', alg: -257 },
         ],
         authenticatorSelection: {
-          authenticatorAttachment: "platform",
-          userVerification: "required",
-          residentKey: "required",
+          authenticatorAttachment: 'platform',
+          userVerification: 'required',
+          residentKey: 'required',
         },
       },
     })) as PublicKeyCredential;
 
-    if (!credential) throw new Error("Registration failed");
+    if (!credential) throw new Error('Registration failed');
 
     config.duressCredentialId = credential.id;
     localStorage.setItem(
@@ -237,7 +242,7 @@ export class BiometricVault {
       return await decryptData(this.key, iv, ciphertext);
     } catch (e) {
       throw new Error(
-        "Failed to decrypt data. Key may be invalid or data corrupted.",
+        'Failed to decrypt data. Key may be invalid or data corrupted.',
       );
     }
   }
@@ -247,7 +252,7 @@ export class BiometricVault {
   }
 
   async getPaperKey(): Promise<string> {
-    const rawKey = await crypto.subtle.exportKey("raw", this.key);
+    const rawKey = await crypto.subtle.exportKey('raw', this.key);
     return bufferToBase64url(rawKey);
   }
 
@@ -256,10 +261,13 @@ export class BiometricVault {
     paperKey: string,
   ): Promise<BiometricVault> {
     const rawKey = base64urlToBuffer(paperKey);
-    const key = await crypto.subtle.importKey("raw", rawKey, "AES-GCM", true, [
-      "encrypt",
-      "decrypt",
-    ]);
+    const key = await crypto.subtle.importKey(
+      'raw',
+      rawKey as unknown as BufferSource,
+      'AES-GCM',
+      true,
+      ['encrypt', 'decrypt'],
+    );
     return new BiometricVault(vaultName, key);
   }
 }
