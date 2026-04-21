@@ -1,0 +1,44 @@
+{
+  "name": "biometric-vault",
+  "version": "1.0.0",
+  "description": "Passkey-Secured LocalStorage using WebAuthn API and Hardware Security Modules",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "test": "vitest run",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write ."
+  },
+  "keywords": [
+    "webauthn",
+    "passkey",
+    "encryption",
+    "security",
+    "localstorage",
+    "biometrics",
+    "faceid",
+    "touchid"
+  ],
+  "author": "Mikocoral05",
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^8.3.6",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  },
+  "publishConfig": {
+    "access": "public",
+  },
+  "funding": [
+    {
+      "type": "ko-fi",
+      "url": "https://ko-fi.com/mikaeltenshio"
+    },
+    {
+      "type": "buy-me-a-coffee",
+      "url": "https://buymeacoffee.com/mikaeltenshio"
+    }
+  ]
+}
